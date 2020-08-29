@@ -1,0 +1,6 @@
+{
+	"chmod": "0755",
+	"main": "bin/run",
+	"alias": "test-phar.phar",
+	"force-autodiscovery": true
+}

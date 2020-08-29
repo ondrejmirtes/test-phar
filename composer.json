@@ -1,0 +1,10 @@
+{
+	"name": "ondrejmirtes/test-phar",
+    "require": {
+		"php": "^7.1 || ^8.0",
+        "jean85/pretty-package-versions": "^1.5"
+    },
+	"bin": [
+		"bin/run"
+	]
+}

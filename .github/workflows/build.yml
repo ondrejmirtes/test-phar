@@ -1,0 +1,60 @@
+name: "Build"
+on:
+  push:
+    branches:
+      - "master"
+
+jobs:
+  build-phar:
+    name: "Build PHAR"
+    runs-on: "ubuntu-latest"
+    strategy:
+      matrix:
+        composer:
+          - "v1"
+          - "snapshot"
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          coverage: "none"
+          php-version: "7.4"
+          tools: composer:${{matrix.composer}}
+
+      - name: "Install dependencies"
+        run: "composer install --no-interaction --no-progress --no-suggest"
+
+      - name: "Build PHAR"
+        run: "php box.phar compile --config $(pwd)/box.json"
+
+      - name: "Upload PHAR"
+        uses: actions/upload-artifact@v2.1.3
+        with:
+          name: test-phar-composer-${{ matrix.composer }}.phar
+          path: bin/run.phar
+  test-phar:
+    name: "Test PHAR"
+    needs:
+      - build-phar
+    runs-on: ${{matrix.os}}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - "ubuntu-latest"
+          - "windows-latest"
+        composer:
+          - "v1"
+          - "snapshot"
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+      - name: "Download PHAR"
+        uses: actions/download-artifact@v2
+        with:
+          name: test-phar-composer-${{ matrix.composer }}.phar
+      - name: "Run PHAR"
+        run: php run.phar
